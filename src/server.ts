@@ -46,7 +46,23 @@ const initDb = async () => {
 
 initDb();
 
-app.get("/", (req: Request, res: Response) => {
+app.post("/users", async (req: Request, res: Response) => {
+  const { name, email, age, phone, address } = req.body;
+  try {
+    const result = await pool.query(
+      "INSERT INTO users (name, email) VALUES ($1, $2) RETURNING *",
+      [name, email]
+    );
+    console.log(result);
+
+    res
+      .status(201)
+      .json({ message: "User created successfully", user: result.rows[0] });
+  } catch (error) {
+    console.error("Error creating user:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+
   res.send("Hello World!");
 });
 app.post("/data", (req: Request, res: Response) => {
